@@ -1,0 +1,1261 @@
+1    0000                       ROW0             EQU          P2.0
+2    0000                       ROW1             EQU          P2.1
+3    0000                       ROW2             EQU          P2.2            
+4    0000                       ROW3             EQU          P2.3
+6    0000                       CLMN0            EQU          P2.7
+7    0000                       CLMN1            EQU          P2.6
+8    0000                       CLMN2            EQU          P2.5
+9    0000                       CLMN3            EQU          P2.4
+11   0000 ;ALERT            EQU          P3.7   ;goes low when any key's pressed
+13   0000 WTCMD   EQU     10100000B       ;WRITE DATA COMMAND Note 3
+14   0000 RDCMD   EQU     10100001B       ;READ DATA COMMAND Note 3
+15   0000 RDEND   EQU     01000000B       ;READ HIGH-ENDURANCE BLOCK NUMBER COMMAND
+16   0000 ADDRH   EQU     0
+17   0000 ADDRL   EQU     0               
+18   0000 BYTCNT  EQU     8
+21   0000 ;_________________________________________________________________
+22   0000 ;-------------------------main code------------------------------
+23   0000 ;_________________________________________________________________
+24   0000 	org  0000h
+25   0000     	LJMP ks_main
+27   0003 	ORG 0003H
+28   0003 	LCALL ISR
+31   0006 		org 0100h
+32   0100 ks_main: 
+34   0100 		MOV R0,#40H
+35   0102 		MOV R1,#30H
+36   0104 		MOV IE,#81H
+37   0107 		MOV IP,#01H
+38   010A 		SETB P3.2
+39   010C 		clr p3.7
+40   010E 		clr p3.6
+41   0110 		setb p1.7
+43   0112 		MOV A,#38h
+44   0114 		LCALL COMNWRT
+46   0117 		MOV A,#0eh
+47   0119 		LCALL COMNWRT
+49   011C 		MOV A,#01
+50   011E 		LCALL COMNWRT
+52   0121 		MOV A,#06h
+53   0123 		LCALL COMNWRT
+55   0126 		MOV A,#80h
+56   0128 		LCALL COMNWRT
+58   012B          MOV A,#01H
+59   012D 	    LCALL COMNWRT
+60   0130 	    MOV A,#80H
+61   0132 	    LCALL COMNWRT
+62   0135 	    MOV A,#'S'
+63   0137 	    LCALL DATAWRT
+64   013A 	    MOV A,#'T'
+65   013C 	    LCALL DATAWRT
+66   013F 	    MOV A,#'R'
+67   0141 	    LCALL DATAWRT
+68   0144 	    MOV A,#'O'
+69   0146 	    LCALL DATAWRT
+70   0149 	    MOV A,#'N'
+71   014B 	    LCALL DATAWRT
+72   014E 	    MOV A,#'G'
+73   0150 	    LCALL DATAWRT
+74   0153 	    MOV A,#' '
+75   0155 	    LCALL DATAWRT
+76   0158 	    MOV A,#'&'
+77   015A 	    LCALL DATAWRT
+78   015D 	    MOV A,#' '
+79   015F 	    LCALL DATAWRT
+80   0162 	    MOV A,#'S'
+81   0164 	    LCALL DATAWRT
+82   0167 	    MOV A,#'A'
+83   0169 	    LCALL DATAWRT
+84   016C 	    MOV A,#'F'
+85   016E 	    LCALL DATAWRT
+86   0171 	    MOV A,#'E'
+87   0173 	    LCALL DATAWRT
+88   0176 	    MOV A,#' '
+89   0178 	    LCALL DATAWRT
+92   017B 	    MOV A,#0C0H
+93   017D 	    LCALL COMNWRT
+95   0180 	    MOV A,#'S'
+96   0182 	    LCALL DATAWRT
+97   0185 	    MOV A,#'E'
+98   0187 	    LCALL DATAWRT
+99   018A 	    MOV A,#'C'
+100  018C 	    LCALL DATAWRT
+101  018F 	    MOV A,#'U'
+102  0191 	    LCALL DATAWRT
+103  0194 	    MOV A,#'R'
+104  0196 	    LCALL DATAWRT
+105  0199 	    MOV A,#'I'
+106  019B 	    LCALL DATAWRT
+107  019E 	    MOV A,#'T'
+108  01A0 	    LCALL DATAWRT
+109  01A3 	    MOV A,#'Y'
+110  01A5 	    LCALL DATAWRT
+111  01A8 	    MOV A,#' '
+112  01AA 	    LCALL DATAWRT
+113  01AD 	    MOV A,#'S'
+114  01AF 	    LCALL DATAWRT
+115  01B2 	    MOV A,#'Y'
+116  01B4 	    LCALL DATAWRT
+117  01B7 	    MOV A,#'S'
+118  01B9 	    LCALL DATAWRT
+119  01BC 	    MOV A,#'T'
+120  01BE 	    LCALL DATAWRT
+121  01C1 	    MOV A,#'E'
+122  01C3 	    LCALL DATAWRT
+123  01C6 	    MOV A,#'M'
+124  01C8 	    LCALL DATAWRT
+125  01CB 	    MOV A,#'S'
+126  01CD 	    LCALL DATAWRT
+129  01D0 		 MOV A,#01H
+130  01D2 	    LCALL COMNWRT
+131  01D5 	    MOV A,#80H
+132  01D7 	    LCALL COMNWRT
+134  01DA 		LCALL BLOKRD
+138  01DD 		LJMP YYY
+140  01E0 BLOKRD: MOV     R6,#00H       ;LOAD ADDRESS POINTER FOR HIGH DENSITY ONLY
+141  01E2         MOV     R7,#00h       ;LOAD ADDRESS POINTER FOR ALL DEVICES
+142  01E4         MOV     R1,#30H      ;LOAD DATA POINTER
+143  01E6         MOV     R5,#06     ;LOAD BYTE COUNT
+144  01E8         CALL    BLKRD           ;CALL BLOCK READ ROUTINE
+145  01EB         RET
+148  01EC BLKRD:  MOV     A,#WTCMD        ;LOAD WRITE COMMAND TO SEND ADDRESS
+149  01EE         CALL    OUTS            ;SEND IT
+150  01F1         MOV     A,R7           ;GET LOW BYTE ADDRESS
+151  01F2         CALL    OUT             ;SEND IT
+152  01F5         MOV     A,#RDCMD        ;LOAD READ COMMAND
+153  01F7         CALL    OUTS            ;SEND IT
+154  01FA BRDLP:  CALL    IN              ;READ DATA
+155  01FD         MOV     @R1,a           ;STORE DATA
+156  01FE         INC     R1             ;INCREMENT DATA POINTER
+157  01FF         DJNZ    R5,AKLP         ;DECREMENT LOOP COUNTER
+158  0201         CALL    STOP            ;IF DONE, ISSUE STOP CONDITION
+159  0204         RET                     ;DONE, EXIT ROUTINE
+161  0205 AKLP:   CLR     P1.1            ;NOT DONE, ISSUE ACK
+162  0207         SETB   P1.0            
+163  0209         NOP                     ;NOTE 1
+164  020A         NOP
+165  020B         NOP
+166  020C         NOP                     ;NOTE 2
+167  020D         NOP
+168  020E         CLR    P1.0
+169  0210         JMP     BRDLP           ;CONTINUE WITH READS
+172  0213 YYY:
+175  0213 	    MOV A,#'E'
+176  0215 	    LCALL DATAWRT
+177  0218 	    MOV A,#'N'
+178  021A 	    LCALL DATAWRT
+179  021D 	    MOV A,#'T'
+180  021F 	    LCALL DATAWRT
+181  0222 	    MOV A,#'E'
+182  0224 	    LCALL DATAWRT
+183  0227 	    MOV A,#'R'
+184  0229 	    LCALL DATAWRT
+185  022C 	    MOV A,#' '
+186  022E 	    LCALL DATAWRT
+187  0231 	    MOV A,#'P'
+188  0233 	    LCALL DATAWRT
+189  0236 	    MOV A,#'A'
+190  0238 	    LCALL DATAWRT
+191  023B 	    MOV A,#'S'
+192  023D 	    LCALL DATAWRT
+193  0240 	    MOV A,#'S'
+194  0242 	    LCALL DATAWRT
+195  0245 	    MOV A,#'W'
+196  0247 	    LCALL DATAWRT
+197  024A 	    MOV A,#'O'
+198  024C 	    LCALL DATAWRT
+199  024F 	    MOV A,#'R'
+200  0251 	    LCALL DATAWRT
+201  0254 	    MOV A,#'D'
+202  0256 	    LCALL DATAWRT
+204  0259 	    MOV A,#0C5H
+205  025B 	    LCALL COMNWRT
+207  025E         MOV R0,#40H
+209  0260 		mov p2,#0ffh					;make input ports
+210  0263             	;mov p3,#00h	;make output ports; never make this mistake => 3.0 n 3.1 are serial pins
+211  0263 ;	    	setb ALERT						              
+215  0263 ks_main1:   	mov p2,#0f0h                    ;all columns high n rows low
+216  0266             	mov a,p2
+217  0268             	anl a,#11110000b                ;consider only columns
+218  026A             	cjne a,#11110000b,ks_main1      ;initially check for all keys released
+219  026D ;-------------------------------------------------------------------                      
+220  026D ks_loop1:   	LCALL DELAY
+221  0270             	mov a,p2
+222  0272             	anl a,#11110000b                            ;scan columns
+223  0274             	cjne a,#11110000b,debounce         ;if key pressed, check debounce
+224  0277             	sjmp ks_loop1                       ;if not, keep checking for key pressed
+225  0279 ;-------------------------------------------------------------------
+226  0279 debounce:   	LCALL DELAY
+227  027C             	mov a,p2
+228  027E             	anl a,#11110000b 
+229  0280             	cjne a,#11110000b,check_row
+230  0283             	sjmp ks_loop1
+231  0285 ;--------------------------------------------------------------------
+232  0285 check_row:           
+234  0285             	clr ROW0
+235  0287 	    	setb ROW1
+236  0289 	    	setb ROW2
+237  028B 	    	setb ROW3
+239  028D 	    	mov a,p2
+240  028F             	anl a,#11111110b 			 ;test row zero
+241  0291             	cjne a,#11111110b,row_0
+242  0294 ;--------------------------------------------------------------------			
+243  0294 		setb ROW0
+244  0296 		clr ROW1
+245  0298 		setb ROW2
+246  029A 		setb ROW3
+248  029C             	mov a,p2
+249  029E             	anl a,#11111101b 			 ;test row one
+250  02A0             	cjne a,#11111101b,row_1
+251  02A3 ;---------------------------------------------------------------------
+252  02A3             	setb ROW0
+253  02A5 		setb ROW1
+254  02A7 		clr ROW2
+255  02A9 		setb ROW3
+257  02AB                 mov a,p2
+258  02AD             	anl a,#11111011b			 ;test row two
+259  02AF             	cjne a,#11111011b,row_2
+260  02B2 ;--------------------------------------------------------------------- 			
+261  02B2 		setb ROW0
+262  02B4 		setb ROW1
+263  02B6 		setb ROW2
+264  02B8 		clr ROW3
+266  02BA             	mov a,p2
+267  02BC             	anl a,#11110111b  		    ;test row three
+268  02BE             	cjne a,#11110111b,row_3
+269  02C1 ;----------------------------------------------------------------------
+270  02C1             	sjmp ks_loop1
+271  02C3 ;----------------------------------------------------------------------
+272  02C3 row_0:      mov dptr,#disp_kcode0
+273  02C6              sjmp find_num
+275  02C8 row_1:      mov dptr,#disp_kcode1
+276  02CB              sjmp find_num
+278  02CD row_2:      mov dptr,#disp_kcode2
+279  02D0              sjmp find_num
+281  02D2 row_3:      mov dptr,#disp_kcode3
+282  02D5              sjmp find_num
+283  02D7 ;----------------------------------------------------------------------
+284  02D7 find_num:   rlc a
+285  02D8             jnc found_num      ;which column is pressed/grounded
+286  02DA             inc dptr
+287  02DB             sjmp find_num
+288  02DD ;----------------------------------------------------------------------
+289  02DD found_num:  ;clr ALERT ;notify main MC that key has been pressed
+291  02DD 	    clr a
+292  02DE             movc a,@a+dptr
+293  02DF 	    MOV @R0,A	   
+294  02E0 	    CJNE A,#'E',DOWN	    
+295  02E3 	    SJMP DOWN1
+296  02E5 DOWN:	    CJNE A,#'C',DOWN2
+297  02E8 	    LJMP CNG_PASS
+298  02EB DOWN2:	    MOV A,#'*'
+299  02ED 	    LCALL DATAWRT
+300  02F0 	    INC R0
+301  02F1 	    jmp ks_main1
+303  02F4 DOWN1:	
+304  02F4 	    MOV R0,#40H
+305  02F6 	    MOV A,@R0
+306  02F7 	    CJNE A,30H,WR_DISP
+307  02FA 	    INC R0
+308  02FB 	    MOV A,@R0
+309  02FC 	    CJNE A,31H,WR_DISP
+310  02FF 	    INC R0
+311  0300 	    MOV A,@R0
+312  0301 	    CJNE A,32H,WR_DISP
+313  0304 	    INC R0
+314  0305 	    MOV A,@R0
+315  0306 	    CJNE A,33H,WR_DISP
+316  0309 	    INC R0
+317  030A 	    MOV A,@R0
+318  030B 	    CJNE A,34H,WR_DISP
+319  030E 	    INC R0
+320  030F 	    MOV A,@R0
+321  0310 	    CJNE A,35H,WR_DISP
+323  0313 	    LJMP CRT_PASS
+325  0316 WR_DISP:
+326  0316 	    MOV A,#01H
+327  0318 	    LCALL COMNWRT
+328  031B 	    MOV A,#80H
+329  031D 	    LCALL COMNWRT
+330  0320 	    MOV A,#'W'
+331  0322 	    LCALL DATAWRT
+332  0325 	    MOV A,#'R'
+333  0327 	    LCALL DATAWRT
+334  032A 	    MOV A,#'O'
+335  032C 	    LCALL DATAWRT
+336  032F 	    MOV A,#'N'
+337  0331 	    LCALL DATAWRT
+338  0334 	    MOV A,#'G'
+339  0336 	    LCALL DATAWRT
+340  0339 	    MOV A,#' '
+341  033B 	    LCALL DATAWRT
+342  033E 	    MOV A,#'P'
+343  0340 	    LCALL DATAWRT
+344  0343 	    MOV A,#'A'
+345  0345 	    LCALL DATAWRT
+346  0348 	    MOV A,#'S'
+347  034A 	    LCALL DATAWRT
+348  034D 	    MOV A,#'S'
+349  034F 	    LCALL DATAWRT
+350  0352 	    MOV A,#'W'
+351  0354 	    LCALL DATAWRT
+352  0357 	    MOV A,#'O'
+353  0359 	    LCALL DATAWRT
+354  035C 	    MOV A,#'R'
+355  035E 	    LCALL DATAWRT
+356  0361 	    MOV A,#'D'
+357  0363 	    LCALL DATAWRT
+359  0366 	      setb p3.6
+360  0368 	    LCALL DELAY
+361  036B 	    LCALL DELAY
+362  036E 	    LCALL DELAY
+363  0371 	    LCALL DELAY
+364  0374 	    LCALL DELAY
+365  0377 	    LCALL DELAY
+366  037A 	    LCALL DELAY
+367  037D 	    LCALL DELAY
+368  0380 	    LCALL DELAY
+369  0383 	    LCALL DELAY
+370  0386 	    LCALL DELAY
+371  0389 	    LCALL DELAY
+372  038C 	    LCALL DELAY
+373  038F 	    LCALL DELAY
+374  0392 	    LCALL DELAY
+375  0395 	    LCALL DELAY
+376  0398 	   clr p3.6
+377  039A 	    LJMP ks_main
+381  039D CRT_PASS:
+383  039D 	    MOV A,#01H
+384  039F 	    LCALL COMNWRT
+385  03A2 	    MOV A,#80H
+386  03A4 	    LCALL COMNWRT
+387  03A7 	    MOV A,#'C'
+388  03A9 	    LCALL DATAWRT
+389  03AC 	    MOV A,#'O'
+390  03AE 	    LCALL DATAWRT
+391  03B1 	    MOV A,#'R'
+392  03B3 	    LCALL DATAWRT
+393  03B6 	    MOV A,#'R'
+394  03B8 	    LCALL DATAWRT
+395  03BB 	    MOV A,#'E'
+396  03BD 	    LCALL DATAWRT
+397  03C0 	    MOV A,#'C'
+398  03C2 	    LCALL DATAWRT
+399  03C5 	    MOV A,#'T'
+400  03C7 	    LCALL DATAWRT
+401  03CA 	    MOV A,#' '
+402  03CC 	    LCALL DATAWRT
+403  03CF 	    MOV A,#'P'
+404  03D1 	    LCALL DATAWRT
+405  03D4 	    MOV A,#'A'
+406  03D6 	    LCALL DATAWRT
+407  03D9 	    MOV A,#'S'
+408  03DB 	    LCALL DATAWRT
+409  03DE 	    MOV A,#'S'
+410  03E0 	    LCALL DATAWRT
+411  03E3 	    MOV A,#'W'
+412  03E5 	    LCALL DATAWRT
+413  03E8 	    MOV A,#'O'
+414  03EA 	    LCALL DATAWRT
+415  03ED 	    MOV A,#'R'
+416  03EF 	    LCALL DATAWRT
+417  03F2 	    MOV A,#'D'
+418  03F4 	    LCALL DATAWRT
+420  03F7 	    SETB P3.7
+422  03F9 	    LCALL DELAY
+423  03FC 	    LCALL DELAY
+424  03FF 	    LCALL DELAY
+425  0402 	    LCALL DELAY
+426  0405 	    LCALL DELAY
+427  0408 	    LCALL DELAY
+428  040B 	    LCALL DELAY
+429  040E 	    LCALL DELAY
+430  0411 	    LCALL DELAY
+431  0414 	    LCALL DELAY
+432  0417 	    LCALL DELAY
+433  041A 	    LCALL DELAY
+436  041D 	;   LJMP ks_main
+438  041D ZZZ:    MOV R0,#40H
+439  041F 	    MOV A,#01H
+440  0421 	    LCALL COMNWRT
+442  0424 	    MOV A,#80H
+443  0426 	    LCALL COMNWRT
+445  0429 	    MOV A,#'E'
+446  042B 	    LCALL DATAWRT
+447  042E 	    MOV A,#'N'
+448  0430 	    LCALL DATAWRT
+449  0433 	    MOV A,#'T'
+450  0435 	    LCALL DATAWRT
+451  0438 	    MOV A,#'E'
+452  043A 	    LCALL DATAWRT
+453  043D 	    MOV A,#'R'
+454  043F 	    LCALL DATAWRT
+455  0442 	    MOV A,#' '
+456  0444 	    LCALL DATAWRT
+457  0447 	    MOV A,#'P'
+458  0449 	    LCALL DATAWRT
+459  044C 	    MOV A,#'A'
+460  044E 	    LCALL DATAWRT
+461  0451 	    MOV A,#'S'
+462  0453 	    LCALL DATAWRT
+463  0456 	    MOV A,#'S'
+464  0458 	    LCALL DATAWRT
+465  045B 	    MOV A,#'W'
+466  045D 	    LCALL DATAWRT
+467  0460 	    MOV A,#'O'
+468  0462 	    LCALL DATAWRT
+469  0465 	    MOV A,#'R'
+470  0467 	    LCALL DATAWRT
+471  046A 	    MOV A,#'D'
+472  046C 	    LCALL DATAWRT
+474  046F 	    MOV A,#0C5H
+475  0471 	    LCALL COMNWRT
+479  0474 		mov p2,#0ffh					;make input ports
+480  0477             	;mov p3,#00h	;make output ports; never make this mistake => 3.0 n 3.1 are serial pins
+481  0477 ;	    	setb ALERT						              
+485  0477 ks_main13:   	mov p2,#0f0h                    ;all columns high n rows low
+486  047A             	mov a,p2
+487  047C             	anl a,#11110000b                ;consider only columns
+488  047E             	cjne a,#11110000b,ks_main13      ;initially check for all keys released
+489  0481 ;-------------------------------------------------------------------                      
+490  0481 ks_loop13:   	LCALL DELAY
+491  0484             	mov a,p2
+492  0486             	anl a,#11110000b                            ;scan columns
+493  0488             	cjne a,#11110000b,debounce3         ;if key pressed, check debounce
+494  048B             	sjmp ks_loop13                       ;if not, keep checking for key pressed
+495  048D ;-------------------------------------------------------------------
+496  048D debounce3:   	LCALL DELAY
+497  0490             	mov a,p2
+498  0492             	anl a,#11110000b 
+499  0494             	cjne a,#11110000b,check_row3
+500  0497             	sjmp ks_loop13
+501  0499 ;--------------------------------------------------------------------
+502  0499 check_row3:           
+504  0499             	clr ROW0
+505  049B 	    	setb ROW1
+506  049D 	    	setb ROW2
+507  049F 	    	setb ROW3
+509  04A1 	    	mov a,p2
+510  04A3             	anl a,#11111110b 			 ;test row zero
+511  04A5             	cjne a,#11111110b,row_03
+512  04A8 ;--------------------------------------------------------------------			
+513  04A8 		setb ROW0
+514  04AA 		clr ROW1
+515  04AC 		setb ROW2
+516  04AE 		setb ROW3
+518  04B0             	mov a,p2
+519  04B2             	anl a,#11111101b 			 ;test row one
+520  04B4             	cjne a,#11111101b,row_13
+521  04B7 ;---------------------------------------------------------------------
+522  04B7             	setb ROW0
+523  04B9 		setb ROW1
+524  04BB 		clr ROW2
+525  04BD 		setb ROW3
+527  04BF                 mov a,p2
+528  04C1             	anl a,#11111011b			 ;test row two
+529  04C3             	cjne a,#11111011b,row_23
+530  04C6 ;--------------------------------------------------------------------- 			
+531  04C6 		setb ROW0
+532  04C8 		setb ROW1
+533  04CA 		setb ROW2
+534  04CC 		clr ROW3
+536  04CE             	mov a,p2
+537  04D0             	anl a,#11110111b  		    ;test row three
+538  04D2             	cjne a,#11110111b,row_33
+539  04D5 ;----------------------------------------------------------------------
+540  04D5             	sjmp ks_loop13
+541  04D7 ;----------------------------------------------------------------------
+542  04D7 row_03:      mov dptr,#disp_kcode03
+543  04DA              sjmp find_num3
+545  04DC row_13:      mov dptr,#disp_kcode13
+546  04DF              sjmp find_num3
+548  04E1 row_23:      mov dptr,#disp_kcode23
+549  04E4              sjmp find_num3
+551  04E6 row_33:      mov dptr,#disp_kcode33
+552  04E9              sjmp find_num3
+553  04EB ;----------------------------------------------------------------------
+554  04EB find_num3:   rlc a
+555  04EC             jnc found_num3      ;which column is pressed/grounded
+556  04EE             inc dptr
+557  04EF             sjmp find_num3
+558  04F1 ;----------------------------------------------------------------------
+559  04F1 found_num3:  ;clr ALERT ;notify main MC that key has been pressed
+561  04F1 	    clr a
+562  04F2             movc a,@a+dptr
+563  04F3 	    MOV @R0,A	   
+564  04F4 	    CJNE A,#'E',DOWN3	    
+565  04F7 	    SJMP DOWN13
+566  04F9 DOWN3:	    CJNE A,#'C',DOWN23
+567  04FC 	    LJMP CNG_PASS
+568  04FF DOWN23:	    MOV A,#'*'
+569  0501 	    LCALL DATAWRT
+570  0504 	    INC R0
+571  0505 	    jmp ks_main13
+573  0508 DOWN13:	
+574  0508 	    MOV R0,#40H
+575  050A 	    MOV A,@R0
+576  050B 	    CJNE A,30H,WR_DISP3
+577  050E 	    INC R0
+578  050F 	    MOV A,@R0
+579  0510 	    CJNE A,31H,WR_DISP3
+580  0513 	    INC R0
+581  0514 	    MOV A,@R0
+582  0515 	    CJNE A,32H,WR_DISP3
+583  0518 	    INC R0
+584  0519 	    MOV A,@R0
+585  051A 	    CJNE A,33H,WR_DISP3
+586  051D 	    INC R0
+587  051E 	    MOV A,@R0
+588  051F 	    CJNE A,34H,WR_DISP3
+589  0522 	    INC R0
+590  0523 	    MOV A,@R0
+591  0524 	    CJNE A,35H,WR_DISP3
+593  0527 	    LJMP CRT_PASS3
+594  052A WR_DISP3:
+596  052A 	    MOV A,#01H
+597  052C 	    LCALL COMNWRT
+598  052F 	    MOV A,#80H
+599  0531 	    LCALL COMNWRT
+600  0534 	    MOV A,#'W'
+601  0536 	    LCALL DATAWRT
+602  0539 	    MOV A,#'R'
+603  053B 	    LCALL DATAWRT
+604  053E 	    MOV A,#'O'
+605  0540 	    LCALL DATAWRT
+606  0543 	    MOV A,#'N'
+607  0545 	    LCALL DATAWRT
+608  0548 	    MOV A,#'G'
+609  054A 	    LCALL DATAWRT
+610  054D 	    MOV A,#' '
+611  054F 	    LCALL DATAWRT
+612  0552 	    MOV A,#'P'
+613  0554 	    LCALL DATAWRT
+614  0557 	    MOV A,#'A'
+615  0559 	    LCALL DATAWRT
+616  055C 	    MOV A,#'S'
+617  055E 	    LCALL DATAWRT
+618  0561 	    MOV A,#'S'
+619  0563 	    LCALL DATAWRT
+620  0566 	    MOV A,#'W'
+621  0568 	    LCALL DATAWRT
+622  056B 	    MOV A,#'O'
+623  056D 	    LCALL DATAWRT
+624  0570 	    MOV A,#'R'
+625  0572 	    LCALL DATAWRT
+626  0575 	    MOV A,#'D'
+627  0577 	    LCALL DATAWRT
+628  057A 	    setb p3.6
+629  057C 	    LCALL DELAY
+630  057F 	    LCALL DELAY
+631  0582 	    LCALL DELAY
+632  0585 	    LCALL DELAY
+633  0588 	    LCALL DELAY
+634  058B 	    LCALL DELAY
+635  058E 	    LCALL DELAY
+636  0591 	    LCALL DELAY
+637  0594 	    LCALL DELAY
+638  0597 	    LCALL DELAY
+639  059A 	    LCALL DELAY
+640  059D 	    LCALL DELAY
+641  05A0 	    LCALL DELAY
+642  05A3 	    LCALL DELAY
+643  05A6 	    LCALL DELAY
+644  05A9 	    LCALL DELAY
+645  05AC 	   clr p3.6
+646  05AE 	    LJMP ZZZ
+648  05B1 CRT_PASS3:
+650  05B1 	    MOV A,#01H
+651  05B3 	    LCALL COMNWRT
+652  05B6 	    MOV A,#80H
+653  05B8 	    LCALL COMNWRT
+654  05BB 	    MOV A,#'C'
+655  05BD 	    LCALL DATAWRT
+656  05C0 	    MOV A,#'O'
+657  05C2 	    LCALL DATAWRT
+658  05C5 	    MOV A,#'R'
+659  05C7 	    LCALL DATAWRT
+660  05CA 	    MOV A,#'R'
+661  05CC 	    LCALL DATAWRT
+662  05CF 	    MOV A,#'E'
+663  05D1 	    LCALL DATAWRT
+664  05D4 	    MOV A,#'C'
+665  05D6 	    LCALL DATAWRT
+666  05D9 	    MOV A,#'T'
+667  05DB 	    LCALL DATAWRT
+668  05DE 	    MOV A,#' '
+669  05E0 	    LCALL DATAWRT
+670  05E3 	    MOV A,#'P'
+671  05E5 	    LCALL DATAWRT
+672  05E8 	    MOV A,#'A'
+673  05EA 	    LCALL DATAWRT
+674  05ED 	    MOV A,#'S'
+675  05EF 	    LCALL DATAWRT
+676  05F2 	    MOV A,#'S'
+677  05F4 	    LCALL DATAWRT
+678  05F7 	    MOV A,#'W'
+679  05F9 	    LCALL DATAWRT
+680  05FC 	    MOV A,#'O'
+681  05FE 	    LCALL DATAWRT
+682  0601 	    MOV A,#'R'
+683  0603 	    LCALL DATAWRT
+684  0606 	    MOV A,#'D'
+685  0608 	    LCALL DATAWRT
+686  060B         CLR P3.7
+688  060D 	    LCALL DELAY
+689  0610 	    LCALL DELAY
+690  0613 	    LCALL DELAY
+691  0616 	    LCALL DELAY
+692  0619 	    LCALL DELAY
+693  061C 	    LCALL DELAY
+694  061F 	    LCALL DELAY
+695  0622 	    LCALL DELAY
+696  0625 	    LCALL DELAY
+697  0628 	    LCALL DELAY
+698  062B 	    LCALL DELAY
+699  062E 	    LCALL DELAY
+702  0631 	   LJMP ks_main
+704  0634 CNG_PASS:
+705  0634 	     MOV R0,#40H
+706  0636 	    MOV A,#01H
+707  0638 	    LCALL COMNWRT
+708  063B 	    MOV A,#80H
+709  063D 	    LCALL COMNWRT
+710  0640 	    MOV A,#'C'
+711  0642 	    LCALL DATAWRT
+712  0645 	    MOV A,#'H'
+713  0647 	    LCALL DATAWRT
+714  064A 	    MOV A,#'A'
+715  064C 	    LCALL DATAWRT
+716  064F 	    MOV A,#'N'
+717  0651 	    LCALL DATAWRT
+718  0654 	    MOV A,#'G'
+719  0656 	    LCALL DATAWRT
+720  0659 	    MOV A,#'E'
+721  065B 	    LCALL DATAWRT
+722  065E 	    MOV A,#' '
+723  0660 	    LCALL DATAWRT
+724  0663 	    MOV A,#'P'
+725  0665 	    LCALL DATAWRT
+726  0668 	    MOV A,#'A'
+727  066A 	    LCALL DATAWRT
+728  066D 	    MOV A,#'S'
+729  066F 	    LCALL DATAWRT
+730  0672 	    MOV A,#'S'
+731  0674 	    LCALL DATAWRT
+732  0677 	    MOV A,#'W'
+733  0679 	    LCALL DATAWRT
+734  067C 	    MOV A,#'O'
+735  067E 	    LCALL DATAWRT
+736  0681 	    MOV A,#'R'
+737  0683 	    LCALL DATAWRT
+738  0686 	    MOV A,#'D'
+739  0688 	    LCALL DATAWRT
+741  068B 	    LCALL DELAY
+742  068E 	    LCALL DELAY
+743  0691 	    LCALL DELAY
+744  0694 	    LCALL DELAY
+745  0697 	    LCALL DELAY
+746  069A 	    LCALL DELAY
+747  069D 	    LCALL DELAY
+748  06A0 	    LCALL DELAY
+749  06A3 	    LCALL DELAY
+750  06A6 	    LCALL DELAY
+751  06A9 	    LCALL DELAY
+752  06AC 	    LCALL DELAY
+754  06AF 	    MOV A,#01H
+755  06B1 	    LCALL COMNWRT
+756  06B4 	    MOV A,#80H
+757  06B6 	    LCALL COMNWRT
+758  06B9 	    MOV A,#'E'
+759  06BB 	    LCALL DATAWRT
+760  06BE 	    MOV A,#'N'
+761  06C0 	    LCALL DATAWRT
+762  06C3 	    MOV A,#'T'
+763  06C5 	    LCALL DATAWRT
+764  06C8 	    MOV A,#'E'
+765  06CA 	    LCALL DATAWRT
+766  06CD 	    MOV A,#'R'
+767  06CF 	    LCALL DATAWRT
+768  06D2 	    MOV A,#' '
+769  06D4 	    LCALL DATAWRT
+770  06D7 	    MOV A,#'O'
+771  06D9 	    LCALL DATAWRT
+772  06DC 	    MOV A,#'L'
+773  06DE 	    LCALL DATAWRT
+774  06E1 	    MOV A,#'D'
+775  06E3 	    LCALL DATAWRT
+776  06E6 	    MOV A,#' '
+777  06E8 	    LCALL DATAWRT
+778  06EB 	    MOV A,#'P'
+779  06ED 	    LCALL DATAWRT
+780  06F0 	    MOV A,#'A'
+781  06F2 	    LCALL DATAWRT
+782  06F5 	    MOV A,#'S'
+783  06F7 	    LCALL DATAWRT
+784  06FA 	    MOV A,#'S'
+785  06FC 	    LCALL DATAWRT
+787  06FF 	    MOV A,#0C5H
+788  0701 	    LCALL COMNWRT
+790  0704 ks_main12:   	mov p2,#0f0h                    ;all columns high n rows low
+791  0707             	mov a,p2
+792  0709             	anl a,#11110000b                ;consider only columns
+793  070B             	cjne a,#11110000b,ks_main12     ;initially check for all keys released
+794  070E ;-------------------------------------------------------------------                      
+795  070E ks_loop12:   	LCALL DELAY
+796  0711             	mov a,p2
+797  0713             	anl a,#11110000b                            ;scan columns
+798  0715             	cjne a,#11110000b,debounce12         ;if key pressed, check debounce
+799  0718             	sjmp ks_loop12                       ;if not, keep checking for key pressed
+800  071A ;-------------------------------------------------------------------
+801  071A debounce12:   	LCALL DELAY
+802  071D             	mov a,p2
+803  071F             	anl a,#11110000b 
+804  0721             	cjne a,#11110000b,check_row2
+805  0724             	sjmp ks_loop12
+806  0726 ;--------------------------------------------------------------------
+807  0726 check_row2:           
+809  0726             	clr ROW0
+810  0728 	    	setb ROW1
+811  072A 	    	setb ROW2
+812  072C 	    	setb ROW3
+814  072E 	    	mov a,p2
+815  0730             	anl a,#11111110b 			 ;test row zero
+816  0732             	cjne a,#11111110b,row_02
+817  0735 ;--------------------------------------------------------------------			
+818  0735 		setb ROW0
+819  0737 		clr ROW1
+820  0739 		setb ROW2
+821  073B 		setb ROW3
+823  073D             	mov a,p2
+824  073F             	anl a,#11111101b 			 ;test row one
+825  0741             	cjne a,#11111101b,row_12
+826  0744 ;---------------------------------------------------------------------
+827  0744             	setb ROW0
+828  0746 		setb ROW1
+829  0748 		clr ROW2
+830  074A 		setb ROW3
+832  074C                 mov a,p2
+833  074E             	anl a,#11111011b			 ;test row two
+834  0750             	cjne a,#11111011b,row_22
+835  0753 ;--------------------------------------------------------------------- 			
+836  0753 		setb ROW0
+837  0755 		setb ROW1
+838  0757 		setb ROW2
+839  0759 		clr ROW3
+841  075B             	mov a,p2
+842  075D             	anl a,#11110111b  		    ;test row three
+843  075F             	cjne a,#11110111b,row_32
+844  0762 ;----------------------------------------------------------------------
+845  0762             	sjmp ks_loop12
+846  0764 ;----------------------------------------------------------------------
+847  0764 row_02:      mov dptr,#disp_kcode02
+848  0767              sjmp find_num2
+850  0769 row_12:      mov dptr,#disp_kcode12
+851  076C              sjmp find_num2
+853  076E row_22:      mov dptr,#disp_kcode22
+854  0771              sjmp find_num2
+856  0773 row_32:      mov dptr,#disp_kcode3
+857  0776              sjmp find_num2
+858  0778 ;----------------------------------------------------------------------
+859  0778 find_num2:   rlc a
+860  0779             jnc found_num2      ;which column is pressed/grounded
+861  077B             inc dptr
+862  077C             sjmp find_num2
+863  077E ;----------------------------------------------------------------------
+864  077E found_num2:  ;clr ALERT ;notify main MC that key has been pressed
+866  077E 	    clr a
+867  077F             movc a,@a+dptr
+868  0780 	    MOV @R0,A
+869  0781 	    CJNE A,#'E',DOWNC2	    
+870  0784 	    SJMP DOWN12
+871  0786 DOWNC2:	     MOV A,#'*'
+872  0788 	    LCALL DATAWRT
+873  078B 	    INC R0
+874  078C 	    jmp ks_main12
+876  078F DOWN12:	    
+877  078F 	    MOV R0,#40H
+878  0791 	    MOV A,@R0
+879  0792 	    CJNE A,30H,WR_DISP1
+880  0795 	    INC R0
+881  0796 	    MOV A,@R0
+882  0797 	    CJNE A,31H,WR_DISP1
+883  079A 	    INC R0
+884  079B 	    MOV A,@R0
+885  079C 	    CJNE A,32H,WR_DISP1
+886  079F 	    INC R0
+887  07A0 	    MOV A,@R0
+888  07A1 	    CJNE A,33H,WR_DISP1
+889  07A4 	    INC R0
+890  07A5 	    MOV A,@R0
+891  07A6 	    CJNE A,34H,WR_DISP1
+892  07A9 	    INC R0
+893  07AA 	    MOV A,@R0
+894  07AB 	    CJNE A,35H,WR_DISP1	
+896  07AE 	    LJMP ENTR_PASS
+898  07B1 WR_DISP1:
+899  07B1 	    MOV A,#01H
+900  07B3 	    LCALL COMNWRT
+901  07B6 	    MOV A,#80H
+902  07B8 	    LCALL COMNWRT
+903  07BB 	    MOV A,#'W'
+904  07BD 	    LCALL DATAWRT
+905  07C0 	    MOV A,#'R'
+906  07C2 	    LCALL DATAWRT
+907  07C5 	    MOV A,#'O'
+908  07C7 	    LCALL DATAWRT
+909  07CA 	    MOV A,#'N'
+910  07CC 	    LCALL DATAWRT
+911  07CF 	    MOV A,#'G'
+912  07D1 	    LCALL DATAWRT
+913  07D4 	    MOV A,#' '
+914  07D6 	    LCALL DATAWRT
+915  07D9 	    MOV A,#'P'
+916  07DB 	    LCALL DATAWRT
+917  07DE 	    MOV A,#'A'
+918  07E0 	    LCALL DATAWRT
+919  07E3 	    MOV A,#'S'
+920  07E5 	    LCALL DATAWRT
+921  07E8 	    MOV A,#'S'
+922  07EA 	    LCALL DATAWRT
+923  07ED 	    MOV A,#'W'
+924  07EF 	    LCALL DATAWRT
+925  07F2 	    MOV A,#'O'
+926  07F4 	    LCALL DATAWRT
+927  07F7 	    MOV A,#'R'
+928  07F9 	    LCALL DATAWRT
+929  07FC 	    MOV A,#'D'
+930  07FE 	    LCALL DATAWRT
+931  0801 	   setb p3.6
+932  0803 	    LCALL DELAY
+933  0806 	    LCALL DELAY
+934  0809 	    LCALL DELAY
+935  080C 	    LCALL DELAY
+936  080F 	    LCALL DELAY
+937  0812 	    LCALL DELAY
+938  0815 	    LCALL DELAY
+939  0818 	    LCALL DELAY
+940  081B 	    LCALL DELAY
+941  081E 	    LCALL DELAY
+942  0821 	    LCALL DELAY
+943  0824 	    LCALL DELAY
+944  0827 	    LCALL DELAY
+945  082A 	    LCALL DELAY
+946  082D 	    LCALL DELAY
+947  0830 	    LCALL DELAY
+948  0833 	   clr p3.6
+949  0835 	    LJMP ks_main
+951  0838 ENTR_PASS:	    
+952  0838 	     MOV A,#01H
+953  083A 	    LCALL COMNWRT
+954  083D 	    MOV A,#80H
+955  083F 	    LCALL COMNWRT
+956  0842 	    MOV A,#'C'
+957  0844 	    LCALL DATAWRT
+958  0847 	    MOV A,#'O'
+959  0849 	    LCALL DATAWRT
+960  084C 	    MOV A,#'R'
+961  084E 	    LCALL DATAWRT
+962  0851 	    MOV A,#'R'
+963  0853 	    LCALL DATAWRT
+964  0856 	    MOV A,#'E'
+965  0858 	    LCALL DATAWRT
+966  085B 	    MOV A,#'C'
+967  085D 	    LCALL DATAWRT
+968  0860 	    MOV A,#'T'
+969  0862 	    LCALL DATAWRT
+970  0865 	    MOV A,#' '
+971  0867 	    LCALL DATAWRT
+972  086A 	    MOV A,#'P'
+973  086C 	    LCALL DATAWRT
+974  086F 	    MOV A,#'A'
+975  0871 	    LCALL DATAWRT
+976  0874 	    MOV A,#'S'
+977  0876 	    LCALL DATAWRT
+978  0879 	    MOV A,#'S'
+979  087B 	    LCALL DATAWRT
+980  087E 	    MOV A,#'W'
+981  0880 	    LCALL DATAWRT
+982  0883 	    MOV A,#'O'
+983  0885 	    LCALL DATAWRT
+984  0888 	    MOV A,#'R'
+985  088A 	    LCALL DATAWRT
+986  088D 	    MOV A,#'D'
+987  088F 	    LCALL DATAWRT
+989  0892 	     LCALL DELAY
+990  0895 	    LCALL DELAY
+991  0898 	    LCALL DELAY
+992  089B 	    LCALL DELAY
+993  089E 	    LCALL DELAY
+994  08A1 	    LCALL DELAY
+995  08A4 	    LCALL DELAY
+996  08A7 	    LCALL DELAY
+997  08AA 	    LCALL DELAY
+998  08AD 	    LCALL DELAY
+999  08B0 	    LCALL DELAY
+1000 08B3 	    LCALL DELAY
+1003 08B6 	    MOV A,#01H
+1004 08B8 	    LCALL COMNWRT
+1005 08BB 	    MOV A,#80H
+1006 08BD 	    LCALL COMNWRT
+1007 08C0 	    MOV A,#'E'
+1008 08C2 	    LCALL DATAWRT
+1009 08C5 	    MOV A,#'N'
+1010 08C7 	    LCALL DATAWRT
+1011 08CA 	    MOV A,#'T'
+1012 08CC 	    LCALL DATAWRT
+1013 08CF 	    MOV A,#'E'
+1014 08D1 	    LCALL DATAWRT
+1015 08D4 	    MOV A,#'R'
+1016 08D6 	    LCALL DATAWRT
+1017 08D9 	    MOV A,#' '
+1018 08DB 	    LCALL DATAWRT
+1019 08DE 	    MOV A,#'N'
+1020 08E0 	    LCALL DATAWRT
+1021 08E3 	    MOV A,#'E'
+1022 08E5 	    LCALL DATAWRT
+1023 08E8 	    MOV A,#'W'
+1024 08EA 	    LCALL DATAWRT
+1025 08ED 	    MOV A,#' '
+1026 08EF 	    LCALL DATAWRT
+1027 08F2 	    MOV A,#'P'
+1028 08F4 	    LCALL DATAWRT
+1029 08F7 	    MOV A,#'A'
+1030 08F9 	    LCALL DATAWRT
+1031 08FC 	    MOV A,#'S'
+1032 08FE 	    LCALL DATAWRT
+1033 0901 	    MOV A,#'S'
+1034 0903 	    LCALL DATAWRT
+1036 0906 	    MOV A,#0C5H
+1037 0908 	    LCALL COMNWRT
+1039 090B 	    MOV R1,#30H
+1041 090D ks_main11:   	mov p2,#0f0h                    ;all columns high n rows low
+1042 0910             	mov a,p2
+1043 0912             	anl a,#11110000b                ;consider only columns
+1044 0914             	cjne a,#11110000b,ks_main11      ;initially check for all keys released
+1045 0917 ;-------------------------------------------------------------------                      
+1046 0917 ks_loop11:   	LCALL DELAY
+1047 091A             	mov a,p2
+1048 091C             	anl a,#11110000b                            ;scan columns
+1049 091E             	cjne a,#11110000b,debounce1         ;if key pressed, check debounce
+1050 0921             	sjmp ks_loop11                       ;if not, keep checking for key pressed
+1051 0923 ;-------------------------------------------------------------------
+1052 0923 debounce1:   	LCALL DELAY
+1053 0926             	mov a,p2
+1054 0928             	anl a,#11110000b 
+1055 092A             	cjne a,#11110000b,check_row1
+1056 092D             	sjmp ks_loop11
+1057 092F ;--------------------------------------------------------------------
+1058 092F check_row1:           
+1060 092F             	clr ROW0
+1061 0931 	    	setb ROW1
+1062 0933 	    	setb ROW2
+1063 0935 	    	setb ROW3
+1065 0937 	    	mov a,p2
+1066 0939             	anl a,#11111110b 			 ;test row zero
+1067 093B             	cjne a,#11111110b,row_01
+1068 093E ;--------------------------------------------------------------------			
+1069 093E 		setb ROW0
+1070 0940 		clr ROW1
+1071 0942 		setb ROW2
+1072 0944 		setb ROW3
+1074 0946             	mov a,p2
+1075 0948             	anl a,#11111101b 			 ;test row one
+1076 094A             	cjne a,#11111101b,row_11
+1077 094D ;---------------------------------------------------------------------
+1078 094D             	setb ROW0
+1079 094F 		setb ROW1
+1080 0951 		clr ROW2
+1081 0953 		setb ROW3
+1083 0955                 mov a,p2
+1084 0957             	anl a,#11111011b			 ;test row two
+1085 0959             	cjne a,#11111011b,row_21
+1086 095C ;--------------------------------------------------------------------- 			
+1087 095C 		setb ROW0
+1088 095E 		setb ROW1
+1089 0960 		setb ROW2
+1090 0962 		clr ROW3
+1092 0964             	mov a,p2
+1093 0966             	anl a,#11110111b  		    ;test row three
+1094 0968             	cjne a,#11110111b,row_31
+1095 096B ;----------------------------------------------------------------------
+1096 096B             	sjmp ks_loop11
+1097 096D ;----------------------------------------------------------------------
+1098 096D row_01:      mov dptr,#disp_kcode01
+1099 0970              sjmp find_num1
+1101 0972 row_11:      mov dptr,#disp_kcode11
+1102 0975              sjmp find_num1
+1104 0977 row_21:      mov dptr,#disp_kcode21
+1105 097A              sjmp find_num1
+1107 097C row_31:      mov dptr,#disp_kcode31
+1108 097F              sjmp find_num1
+1109 0981 ;----------------------------------------------------------------------
+1110 0981 find_num1:   rlc a
+1111 0982             jnc found_num1      ;which column is pressed/grounded
+1112 0984             inc dptr
+1113 0985             sjmp find_num1
+1114 0987 ;----------------------------------------------------------------------
+1115 0987 found_num1:  ;clr ALERT ;notify main MC that key has been pressed
+1117 0987 	    clr a
+1118 0988             movc a,@a+dptr
+1119 0989 	    MOV @R1,A	   	
+1120 098A             CJNE A,#'E',DOWN111	    
+1121 098D 	    SJMP DOWN11
+1122 098F DOWN111:     MOV A,#'*'
+1123 0991 	    LCALL DATAWRT
+1124 0994 	    INC R1	   
+1125 0995 	    LJMP ks_main11
+1127 0998 ;;;;;;;;;;; EEPROM WRITE ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+1128 0998 DOWN11:
+1129 0998 	LCALL BLKWR
+1131 099B 	LJMP ks_main	
+1135 099E BLKWR:  MOV     R6,#00H     ;LOAD ADDRESS POINTER FOR HIGH DENSITY ONLY
+1136 09A0         MOV     R7,#00H     ;LOAD ADDRESS POINTER FOR ALL DEVICES
+1137 09A2         MOV     R1,#30H    ;LOAD BYTE POINTER
+1138 09A4         MOV     R5,#06    ;LOAD BYTE COUNT
+1139 09A6         CALL    PAGEW         ;CALL PAGE WRITE ROUTINE
+1140 09A9         RET
+1142 09AA PAGEW:  MOV     A,#WTCMD        ;LOAD WRITE COMMAND
+1143 09AC         CALL    OUTS            ;SEND IT
+1144 09AF         MOV     A,R7            ;GET LOW BYTE ADDRESS
+1145 09B0         CALL    OUT             ;SEND IT
+1146 09B3 BTLP:   MOV     A,@R1          ;GET DATA
+1147 09B4         CALL    OUT             ;SEND IT
+1148 09B7         INC     R1              ;INCREMENT DATA POINTER
+1149 09B8         DJNZ    R5,BTLP         ;LOOP TILL DONE
+1150 09BA         CALL    STOP            ;SEND STOP CONDITION
+1151 09BD         RET      
+1157 09BE ACKTST: MOV     A,#WTCMD        ;LOAD WRITE COMMAND TO SEND ADDRESS
+1158 09C0         MOV     R2,#8           ;LOOP COUNT -- EQUAL TO BIT COUNT
+1159 09C2         CLR     P1.1            ;START CONDITION -- DATA = 0
+1160 09C4         NOP                     ;NOTE 1
+1161 09C5         NOP
+1162 09C6         NOP
+1163 09C7         NOP                     ;NOTE 2
+1164 09C8         NOP     
+1165 09C9         CLR    P1.0            ;CLOCK = 0
+1166 09CB AKTLP:  RLC     A               ;SHIFT BIT
+1167 09CC         JNC     AKTLS
+1168 09CE         SETB    P1.1            ;DATA = 1
+1169 09D0         JMP     AKTL1           ;CONTINUE
+1170 09D3 AKTLS:  CLR     P1.1            ;DATA = 0
+1171 09D5 AKTL1:  SETB   P1.0            ;CLOCK HI
+1172 09D7         NOP                     ;NOTE 1
+1173 09D8         NOP
+1174 09D9         NOP
+1175 09DA         NOP                     ;NOTE 2
+1176 09DB         NOP
+1177 09DC         CLR    P1.0            ;CLOCK LOW
+1178 09DE         DJNZ    R2,AKTLP        ;DECREMENT COUNTER
+1179 09E0         SETB    P1.1            ;TURN PIN INTO INPUT
+1180 09E2         NOP                     ;NOTE 1
+1181 09E3         NOP                     ;NOTE 2
+1182 09E4         SETB   P1.0            ;CLOCK ACK
+1183 09E6         NOP                     ;NOTE 1
+1184 09E7         NOP
+1185 09E8         NOP
+1186 09E9         NOP                     ;NOTE 2
+1187 09EA         NOP
+1188 09EB         JNB     P1.1,EXIT       ;EXIT IF ACK (WRITE DONE)
+1189 09EE         JMP     ACKTST          ;START OVER
+1190 09F1 EXIT:   CLR    P1.0            ;CLOCK LOW
+1191 09F3         CLR     P1.1            ;DATA LOW
+1192 09F5         NOP                     ;NOTE 1
+1193 09F6         NOP
+1194 09F7         NOP
+1195 09F8         NOP                     ;NOTE 2
+1196 09F9         NOP
+1197 09FA         SETB   P1.0            ;CLOCK HIGH
+1198 09FC         NOP
+1199 09FD         NOP
+1200 09FE         SETB    P1.1            ;STOP CONDITION
+1201 0A00         RET
+1203 0A01 OUTS:   MOV     R2,#8           ;LOOP COUNT -- EQUAL TO BIT COUNT
+1204 0A03         SETB    P1.1            ;INSURE DATA IS HI               
+1205 0A05         SETB   P1.0            ;INSURE CLOCK IS HI
+1206 0A07         NOP                     ;NOTE 1
+1207 0A08         NOP                     
+1208 0A09         NOP
+1209 0A0A         NOP                     ;NOTE 2
+1210 0A0B         NOP
+1211 0A0C         CLR     P1.1            ;START CONDITION -- DATA = 0
+1212 0A0E         NOP                     ;NOTE 1
+1213 0A0F         NOP      
+1214 0A10         NOP
+1215 0A11         NOP                     ;NOTE 2
+1216 0A12         NOP
+1217 0A13         CLR    P1.0            ;CLOCK = 0
+1218 0A15 OTSLP:  RLC     A               ;SHIFT BIT
+1219 0A16         JNC     BITLS
+1220 0A18         SETB    P1.1            ;DATA = 1
+1221 0A1A         JMP     OTSL1           ;CONTINUE
+1222 0A1D BITLS:  CLR     P1.1            ;DATA = 0
+1223 0A1F OTSL1:  SETB   P1.0            ;CLOCK HI
+1224 0A21         NOP                     ;NOTE 1
+1225 0A22         NOP
+1226 0A23         NOP
+1227 0A24         NOP                     ;NOTE 2
+1228 0A25         NOP
+1229 0A26         CLR    P1.0            ;CLOCK LOW
+1230 0A28         DJNZ    R2,OTSLP        ;DECREMENT COUNTER
+1231 0A2A         SETB    P1.1            ;TURN PIN INTO INPUT
+1232 0A2C         NOP                     ;NOTE 1
+1233 0A2D         NOP                     ;NOTE 2
+1234 0A2E         NOP                     
+1235 0A2F         SETB   P1.0            ;CLOCK ACK
+1236 0A31         NOP                     ;NOTE 1
+1237 0A32         NOP
+1238 0A33         NOP
+1239 0A34         NOP                     ;NOTE 2
+1240 0A35         NOP
+1241 0A36         CLR    P1.0
+1242 0A38         RET
+1244 0A39 OUT:    MOV     R2,#8           ;LOOP COUNT -- EQUAL TO BIT COUNT
+1245 0A3B OTLP:   RLC     A               ;SHIFT BIT
+1246 0A3C         JNC     BITL            
+1247 0A3E         SETB    P1.1            ;DATA = 1
+1248 0A40         JMP     OTL1            ;CONTINUE
+1249 0A43 BITL:   CLR     P1.1            ;DATA = 0
+1250 0A45 OTL1:   SETB   P1.0            ;CLOCK HI
+1251 0A47         NOP                     ;NOTE 1
+1252 0A48         NOP
+1253 0A49         NOP
+1254 0A4A         NOP                     ;NOTE 2
+1255 0A4B         NOP
+1256 0A4C         CLR    P1.0            ;CLOCK LOW
+1257 0A4E         DJNZ    R2,OTLP         ;DECREMENT COUNTER
+1258 0A50         SETB    P1.1            ;TURN PIN INTO INPUT
+1259 0A52         NOP                     ;NOTE 1
+1260 0A53         NOP                     ;NOTE 2
+1261 0A54         NOP
+1262 0A55         SETB   P1.0            ;CLOCK ACK
+1263 0A57         NOP                     ;NOTE 1
+1264 0A58         NOP
+1265 0A59         NOP
+1266 0A5A         NOP                     ;NOTE 2
+1267 0A5B         NOP
+1268 0A5C         CLR    P1.0
+1269 0A5E         RET
+1271 0A5F IN:     MOV     R2,#8           ;LOOP COUNT
+1272 0A61         SETB    P1.1            ;SET DATA BIT HIGH FOR INPUT
+1273 0A63 INLP:   CLR    P1.0            ;CLOCK LOW
+1274 0A65         NOP                     ;NOTE 1
+1275 0A66         NOP
+1276 0A67         NOP
+1277 0A68         NOP
+1278 0A69         NOP                     ;NOTE 2
+1279 0A6A         NOP
+1280 0A6B         SETB   P1.0            ;CLOCK HIGH
+1281 0A6D         CLR     C               ;CLEAR CARRY
+1282 0A6E         JNB     P1.1,INL1       ;JUMP IF DATA = 0
+1283 0A71         CPL     C               ;SET CARRY IF DATA = 1
+1284 0A72 INL1:   RLC     A               ;ROTATE DATA INTO ACCUMULATOR
+1285 0A73         DJNZ    R2,INLP         ;DECREMENT COUNTER
+1286 0A75         CLR    P1.0            ;CLOCK LOW
+1287 0A77         RET
+1290 0A78 STOP:   CLR     P1.1            ;STOP CONDITION SET DATA LOW
+1291 0A7A         NOP                     ;NOTE 1
+1292 0A7B         NOP
+1293 0A7C         NOP
+1294 0A7D         NOP                     ;NOTE 2
+1295 0A7E         NOP
+1296 0A7F         SETB   P1.0            ;SET CLOCK HI
+1297 0A81         NOP                     ;NOTE 1
+1298 0A82         NOP
+1299 0A83         NOP
+1300 0A84         NOP                     ;NOTE 2
+1301 0A85         NOP
+1302 0A86         SETB    P1.1            ;SET DATA HIGH		
+1303 0A88         RET
+1306 0A89 ISR:
+1308 0A89 		MOV A,#38h
+1309 0A8B 		LCALL COMNWRT
+1311 0A8E 		MOV A,#0eh
+1312 0A90 		LCALL COMNWRT
+1314 0A93 		MOV A,#01
+1315 0A95 		LCALL COMNWRT
+1317 0A98 		MOV A,#06h
+1318 0A9A 		LCALL COMNWRT
+1320 0A9D 		MOV A,#80h
+1321 0A9F 		LCALL COMNWRT
+1323 0AA2 	    MOV A,#01H
+1324 0AA4 	    LCALL COMNWRT
+1325 0AA7 	    MOV A,#80H
+1326 0AA9 	    LCALL COMNWRT
+1327 0AAC 	    MOV A,#'D'
+1328 0AAE 	    LCALL DATAWRT
+1329 0AB1 	    MOV A,#'E'
+1330 0AB3 	    LCALL DATAWRT
+1331 0AB6 	    MOV A,#'F'
+1332 0AB8 	    LCALL DATAWRT
+1333 0ABB 	    MOV A,#'U'
+1334 0ABD 	    LCALL DATAWRT
+1335 0AC0 	    MOV A,#'L'
+1336 0AC2 	    LCALL DATAWRT
+1337 0AC5 	    MOV A,#'T'
+1338 0AC7 	    LCALL DATAWRT
+1339 0ACA 	    MOV A,#' '
+1340 0ACC 	    LCALL DATAWRT
+1341 0ACF 	    MOV A,#'M'
+1342 0AD1 	    LCALL DATAWRT
+1343 0AD4 	    MOV A,#'O'
+1344 0AD6 	    LCALL DATAWRT
+1345 0AD9 	    MOV A,#'D'
+1346 0ADB 	    LCALL DATAWRT
+1347 0ADE 	    MOV A,#'E'
+1348 0AE0 	    LCALL DATAWRT
+1350 0AE3 	    MOV 30H,#'0'
+1351 0AE6 	    MOV 31H,#'0'
+1352 0AE9 	    MOV 32H,#'0'
+1353 0AEC 	    MOV 33H,#'0'
+1354 0AEF 	    MOV 34H,#'0'
+1355 0AF2 	    MOV 35H,#'0'
+1357 0AF5 	    LCALL BLKWR
+1359 0AF8 	    RET
+1363 0AF9 ;----------------------------------------------------------------------
+1364 0AF9 ;------------------------------20ms delay----------------------------------
+1367 0AF9 COMNWRT: 
+1368 0AF9         	mov p0,a
+1369 0AFB 		clr p3.3
+1370 0AFD 		clr p3.4
+1371 0AFF 		setb p3.5
+1372 0B01 		LCALL DELAY
+1373 0B04 		clr p3.5
+1374 0B06 		ret
+1377 0B07 DATAWRT:
+1378 0B07         	mov p0,a
+1379 0B09 		setb p3.3
+1380 0B0B 		clr p3.4
+1381 0B0D 		setb P3.5
+1382 0B0F 		LCALL DELAY
+1383 0B12 		clr p3.5
+1384 0B14 		ret
+1385 0B15 DELAY:
+1386 0B15         mov r3,#150
+1387 0B17 here2:	mov r4,#255
+1388 0B19 here:   djnz r4,here
+1389 0B1B          djnz r3,here2
+1390 0B1D 		 ret
+1395 0B1E ;-----------------------------------------------------------------------
+1396 0B1E disp_kcode0:DB '1','2','3'
+1397 0B21 disp_kcode1:DB '4','5','6' 
+1398 0B24 disp_kcode2:DB '7','8','9' 
+1399 0B27 disp_kcode3:DB 'C','0','E' 
+1400 0B2A ;-----------------------------------------------------------------------
+1403 0B2A ;-----------------------------------------------------------------------
+1404 0B2A disp_kcode01:DB '1','2','3'
+1405 0B2D disp_kcode11:DB '4','5','6' 
+1406 0B30 disp_kcode21:DB '7','8','9' 
+1407 0B33 disp_kcode31:DB 'C','0','E' 
+1408 0B36 ;-----------------------------------------------------------------------
+1410 0B36 ;-----------------------------------------------------------------------
+1411 0B36 disp_kcode02:DB '1','2','3'
+1412 0B39 disp_kcode12:DB '4','5','6' 
+1413 0B3C disp_kcode22:DB '7','8','9' 
+1414 0B3F disp_kcode32:DB 'C','0','E' 
+1415 0B42 ;-----------------------------------------------------------------------
+1417 0B42 ;-----------------------------------------------------------------------
+1418 0B42 disp_kcode03:DB '1','2','3'
+1419 0B45 disp_kcode13:DB '4','5','6' 
+1420 0B48 disp_kcode23:DB '7','8','9' 
+1421 0B4B disp_kcode33:DB 'C','0','E' 
+1422 0B4E ;-----------------------------------------------------------------------
